@@ -875,12 +875,17 @@ export function setupSwagger(app: Application): void {
     res.send(swaggerSpec);
   });
 
-  // Serve Swagger UI
+  // Serve Swagger UI with CDN assets to fix Vercel Serverless static file bundling
   app.use(
     '/api/docs',
     swaggerUi.serve,
     swaggerUi.setup(swaggerSpec, {
       customSiteTitle: '3D Blog API — Docs',
+      customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css',
+      customJs: [
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.min.js',
+      ],
       customCss: `
         .swagger-ui .topbar { background-color: #1a1a2e; }
         .swagger-ui .topbar-wrapper img { content: url(''); }
