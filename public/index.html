@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="3D Blog Backend Interactive API Tester — Register, Login, and Profile Management">
+  <title>3D Blog API — Futuristic Control Panel</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #060913;
+      --card-bg: rgba(13, 19, 36, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-border-glow: rgba(0, 242, 254, 0.25);
+      
+      --accent-cyan: #00f2fe;
+      --accent-blue: #4facfe;
+      --accent-purple: #7000ff;
+      --accent-pink: #ff007a;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(5, 8, 17, 0.8);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-cyan);
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 10% 10%, rgba(112, 0, 255, 0.3) 0px, transparent 50%),
+        radial-gradient(at 90% 20%, rgba(0, 242, 254, 0.25) 0px, transparent 50%),
+        radial-gradient(at 50% 90%, rgba(255, 0, 122, 0.2) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, .brand-text {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    /* Header Navigation */
+    header {
+      background: rgba(6, 9, 19, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 1.1rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: white;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.5);
+      position: relative;
+    }
+
+    .brand-icon::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+      z-index: -1;
+      opacity: 0.5;
+      filter: blur(6px);
+    }
+
+    .brand-text h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #ffffff, var(--accent-cyan), #ffffff);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 4s linear infinite;
+    }
+
+    @keyframes shine {
+      to { background-position: 200% center; }
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 5px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      gap: 4px;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-btn:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      color: white;
+      box-shadow: 0 4px 15px rgba(112, 0, 255, 0.4);
+    }
+
+    .auth-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid var(--card-border);
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: var(--error);
+      box-shadow: 0 0 10px var(--error);
+    }
+
+    .status-dot.online {
+      background-color: var(--success);
+      box-shadow: 0 0 10px var(--success);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 960px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Card Panels */
+    .card {
+      background: var(--card-bg);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 2.2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s ease;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-cyan), var(--accent-purple), transparent);
+    }
+
+    .card-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1.8rem;
+      font-family: 'Fira Code', monospace;
+      background: rgba(0, 0, 0, 0.25);
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Form Inputs */
+    .form-group {
+      margin-bottom: 1.35rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+      letter-spacing: 0.2px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(5, 8, 18, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 13px 16px;
+      color: white;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+      background: rgba(5, 8, 18, 0.85);
+    }
+
+    .form-select option {
+      background-color: #0d1324;
+      color: white;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* Switch */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: .3s ease;
+      border-radius: 26px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s ease;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(112, 0, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 242, 254, 0.45);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.07);
+      box-shadow: none;
+      border: 1px solid var(--card-border);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      box-shadow: none;
+    }
+
+    /* Profile Display Card */
+    .profile-card {
+      text-align: center;
+      padding: 1rem 0 0.5rem;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1.2rem;
+    }
+
+    .avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent-cyan);
+      box-shadow: 0 0 25px rgba(0, 242, 254, 0.4);
+      background-color: #1e293b;
+    }
+
+    .verified-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      background: #0088ff;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: bold;
+      border: 3px solid var(--bg-dark);
+      box-shadow: 0 0 10px rgba(0, 136, 255, 0.8);
+    }
+
+    .profile-name {
+      font-size: 1.45rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .profile-handle {
+      font-size: 0.92rem;
+      color: var(--accent-cyan);
+      font-weight: 600;
+      margin-bottom: 0.85rem;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .profile-bio {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 1.4rem;
+      line-height: 1.6;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .profile-tags {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    /* Response Console */
+    .console-card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .status-badge {
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      font-family: 'Fira Code', monospace;
+    }
+
+    .status-badge.success {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .status-badge.error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .console-output {
+      flex: 1;
+      background: #03060d;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 1.2rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      overflow-y: auto;
+      min-height: 240px;
+      max-height: 420px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);
+      line-height: 1.5;
+    }
+
+    /* Toast Notification */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: rgba(13, 19, 36, 0.95);
+      border: 1px solid var(--accent-cyan);
+      backdrop-filter: blur(20px);
+      padding: 14px 28px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 242, 254, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+      font-weight: 600;
+    }
+
+    #toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <a href="/" class="brand">
+      <div class="brand-icon">3D</div>
+      <div class="brand-text">
+        <h1>3D Blog API</h1>
+        <p>Futuristic Control Center</p>
+      </div>
+    </a>
+
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="switchTab('register')">Kayıt Ol (Register)</button>
+      <button class="nav-btn" onclick="switchTab('login')">Giriş Yap (Login)</button>
+      <button class="nav-btn" onclick="switchTab('profile')">Profilim (Profile)</button>
+      <button class="nav-btn" onclick="switchTab('search')">Profil Ara (Lookup)</button>
+    </div>
+
+    <div class="auth-badge">
+      <div class="status-dot" id="session-dot"></div>
+      <span id="session-text">Oturum Yok</span>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Left Column: Interactive Form -->
+    <div class="card">
+      
+      <!-- Section 1: Register -->
+      <div id="section-register">
+        <h2 class="card-title">Yeni Hesap Oluştur 🚀</h2>
+        <p class="card-subtitle">POST /api/v1/auth/register</p>
+        
+        <form id="form-register" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label class="form-label" for="reg-name">Ad Soyad</label>
+            <input type="text" id="reg-name" class="form-input" placeholder="Emir Mutlu" required minlength="2">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reg-email">E-Posta Adresi</label>
+            <input type="email" id="reg-email" class="form-input" placeholder="emir@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reg-password">Şifre</label>
+            <input type="password" id="reg-password" class="form-input" placeholder="StrongPassword123!" required minlength="8">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="reg-locale">Tercih Edilen Dil (Locale)</label>
+            <select id="reg-locale" class="form-select">
+              <option value="tr" selected>Türkçe (tr)</option>
+              <option value="en">English (en)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn">Hesap Oluştur</button>
+        </form>
+      </div>
+
+      <!-- Section 2: Login -->
+      <div id="section-login" class="hidden">
+        <h2 class="card-title">Oturum Aç 🔐</h2>
+        <p class="card-subtitle">POST /api/v1/auth/login</p>
+        
+        <form id="form-login" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label" for="login-email">E-Posta Adresi</label>
+            <input type="email" id="login-email" class="form-input" placeholder="emir@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="login-password">Şifre</label>
+            <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="login-locale">İstek Dili (Locale)</label>
+            <select id="login-locale" class="form-select">
+              <option value="tr" selected>Türkçe (tr)</option>
+              <option value="en">English (en)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn">Giriş Yap</button>
+        </form>
+      </div>
+
+      <!-- Section 3: Profile Management (PATCH /profiles/me) -->
+      <div id="section-profile" class="hidden">
+        <h2 class="card-title">Profilini Düzenle ✏️</h2>
+        <p class="card-subtitle">PATCH /api/v1/profiles/me</p>
+        
+        <form id="form-profile" onsubmit="handleUpdateProfile(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="prof-name">Ad Soyad</label>
+              <input type="text" id="prof-name" class="form-input">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prof-username">Kullanıcı Adı (@username)</label>
+              <input type="text" id="prof-username" class="form-input" placeholder="emir_dev">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="prof-bio">Biyografi (Bio)</label>
+            <textarea id="prof-bio" class="form-textarea" placeholder="3D geliştiricisi & içerik üretici..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="prof-avatar">Profil Fotoğrafı (URL)</label>
+              <input type="url" id="prof-avatar" class="form-input" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prof-website">Web Sitesi (URL)</label>
+              <input type="url" id="prof-website" class="form-input" placeholder="https://...">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="prof-location">Konum</label>
+              <input type="text" id="prof-location" class="form-input" placeholder="İstanbul, TR">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="prof-locale">Dil Tercihi</label>
+              <select id="prof-locale" class="form-select">
+                <option value="tr">Türkçe (tr)</option>
+                <option value="en">English (en)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="toggle-group">
+            <div>
+              <div style="font-weight: 600; font-size: 0.9rem;">Gizli Profil</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Sadece takipçiler görsün</div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="prof-private">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button type="submit" class="btn" style="flex: 2;">Güncellemeleri Kaydet</button>
+            <button type="button" class="btn btn-secondary" onclick="handleLogout()" style="flex: 1;">Çıkış Yap</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Section 4: Public Lookup -->
+      <div id="section-search" class="hidden">
+        <h2 class="card-title">Profil Ara 🔍</h2>
+        <p class="card-subtitle">GET /api/v1/profiles/username/:username</p>
+        
+        <div class="form-group">
+          <label class="form-label" for="search-input">Kullanıcı Adı veya UUID</label>
+          <input type="text" id="search-input" class="form-input" placeholder="emir_dev veya UUID...">
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+          <button type="button" class="btn" onclick="handleSearchUsername()">@username ile Ara</button>
+          <button type="button" class="btn btn-secondary" onclick="handleSearchUUID()">UUID ile Ara</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Profile Card + Realtime Response Console -->
+    <div style="display: flex; flex-direction: column; gap: 1.8rem;">
+      
+      <!-- Profile Card Preview -->
+      <div class="card" id="profile-preview-card">
+        <div class="profile-card">
+          <div class="avatar-wrapper">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" id="card-avatar" class="avatar-img" alt="Avatar">
+            <div class="verified-badge hidden" id="card-verified" title="Onaylı Hesap">✓</div>
+          </div>
+          
+          <div class="profile-name">
+            <span id="card-name">Misafir Kullanıcı</span>
+          </div>
+          <div class="profile-handle" id="card-username">@misafir</div>
+          <p class="profile-bio" id="card-bio">Henüz giriş yapılmadı. Sol taraftan giriş yapabilir veya kayıt olabilirsiniz.</p>
+
+          <div class="profile-tags">
+            <span class="tag" id="card-role">Rol: GUEST</span>
+            <span class="tag" id="card-locale">Dil: TR</span>
+            <span class="tag" id="card-private">Public</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Response Inspector -->
+      <div class="card console-card">
+        <div class="console-header">
+          <h3>API Yanıt Konsolu</h3>
+          <span class="status-badge" id="response-status">WAITING</span>
+        </div>
+        <div class="console-output" id="console-body">// Henüz bir istek atılmadı.
+// Sol taraftaki formları kullanarak test edebilirsiniz.</div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg">Bildirim</span>
+  </div>
+
+  <script>
+    // Local State
+    let authToken = localStorage.getItem('accessToken') || null;
+    let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+    // DOM Elements
+    const sessionDot = document.getElementById('session-dot');
+    const sessionText = document.getElementById('session-text');
+    const consoleBody = document.getElementById('console-body');
+    const responseStatus = document.getElementById('response-status');
+
+    // Initialize UI on Load
+    document.addEventListener('DOMContentLoaded', () => {
+      updateSessionUI();
+      if (authToken) {
+        fetchMyProfile();
+      }
+    });
+
+    // Navigation Tab Switcher
+    function switchTab(tab) {
+      const tabs = ['register', 'login', 'profile', 'search'];
+      tabs.forEach(t => {
+        document.getElementById(`section-${t}`).classList.add('hidden');
+      });
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(`section-${tab}`).classList.remove('hidden');
+      event.target.classList.add('active');
+    }
+
+    // Update Session Badge & Profile UI
+    function updateSessionUI() {
+      if (authToken && currentUser) {
+        sessionDot.classList.add('online');
+        sessionText.textContent = currentUser.name || currentUser.email;
+
+        // Populate Card
+        document.getElementById('card-name').textContent = currentUser.name || 'İsimsiz';
+        document.getElementById('card-username').textContent = currentUser.username ? `@${currentUser.username}` : '@username-yok';
+        document.getElementById('card-bio').textContent = currentUser.bio || 'Biyografi henüz eklenmedi.';
+        document.getElementById('card-role').textContent = `Rol: ${currentUser.role || 'user'}`;
+        document.getElementById('card-locale').textContent = `Dil: ${(currentUser.locale || 'tr').toUpperCase()}`;
+        document.getElementById('card-private').textContent = currentUser.isPrivate ? '🔒 Gizli' : '🌐 Açık';
+        
+        if (currentUser.avatarUrl) {
+          document.getElementById('card-avatar').src = currentUser.avatarUrl;
+        }
+
+        if (currentUser.isVerified) {
+          document.getElementById('card-verified').classList.remove('hidden');
+        } else {
+          document.getElementById('card-verified').classList.add('hidden');
+        }
+
+        // Populate Profile Form fields
+        document.getElementById('prof-name').value = currentUser.name || '';
+        document.getElementById('prof-username').value = currentUser.username || '';
+        document.getElementById('prof-bio').value = currentUser.bio || '';
+        document.getElementById('prof-avatar').value = currentUser.avatarUrl || '';
+        document.getElementById('prof-website').value = currentUser.websiteUrl || '';
+        document.getElementById('prof-location').value = currentUser.location || '';
+        document.getElementById('prof-locale').value = currentUser.locale || 'tr';
+        document.getElementById('prof-private').checked = !!currentUser.isPrivate;
+
+      } else {
+        sessionDot.classList.remove('online');
+        sessionText.textContent = 'Oturum Yok';
+        document.getElementById('card-name').textContent = 'Misafir Kullanıcı';
+        document.getElementById('card-username').textContent = '@misafir';
+        document.getElementById('card-bio').textContent = 'Giriş yapılmadı.';
+        document.getElementById('card-verified').classList.add('hidden');
+      }
+    }
+
+    // API Base URL Resolver — automatically targets Node.js server (port 3000) when opened via Live Server
+    const API_BASE = window.location.port === '3000' ? '' : 'http://localhost:3000';
+
+    // API Utility Function
+    async function apiRequest(endpoint, method = 'GET', body = null) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
+      const options = { method, headers };
+      if (body) {
+        options.body = JSON.stringify(body);
+      }
+
+      const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE}${endpoint}`;
+
+      try {
+        const response = await fetch(fullUrl, options);
+        let data = {};
+        const text = await response.text();
+        if (text && text.trim().length > 0) {
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            data = { message: text };
+          }
+        }
+
+        // Update Console
+        responseStatus.textContent = `${response.status} ${response.statusText || ''}`;
+        responseStatus.className = `status-badge ${response.ok ? 'success' : 'error'}`;
+        consoleBody.textContent = JSON.stringify(data, null, 2);
+
+        if (!response.ok) {
+          showToast(data.message || 'İşlem başarısız', '❌');
+        }
+
+        return { ok: response.ok, status: response.status, data };
+      } catch (err) {
+        responseStatus.textContent = 'ERROR';
+        responseStatus.className = 'status-badge error';
+        consoleBody.textContent = String(err);
+        showToast('Sunucuya bağlanılamadı', '⚠️');
+        return { ok: false, data: null };
+      }
+    }
+
+    // Register Handler
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value;
+      const email = document.getElementById('reg-email').value;
+      const password = document.getElementById('reg-password').value;
+      const locale = document.getElementById('reg-locale').value;
+
+      const res = await apiRequest('/api/v1/auth/register', 'POST', { name, email, password, locale });
+      if (res.ok && res.data.data) {
+        authToken = res.data.data.tokens.accessToken;
+        currentUser = res.data.data.user;
+        localStorage.setItem('accessToken', authToken);
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateSessionUI();
+        showToast(res.data.message || 'Hesap oluşturuldu!', '🎉');
+      }
+    }
+
+    // Login Handler
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+      const locale = document.getElementById('login-locale').value;
+
+      const res = await apiRequest('/api/v1/auth/login', 'POST', { email, password, locale });
+      if (res.ok && res.data.data) {
+        authToken = res.data.data.tokens.accessToken;
+        currentUser = res.data.data.user;
+        localStorage.setItem('accessToken', authToken);
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateSessionUI();
+        showToast(res.data.message || 'Giriş başarılı!', '🔑');
+      }
+    }
+
+    // Fetch Own Profile
+    async function fetchMyProfile() {
+      const res = await apiRequest('/api/v1/profiles/me', 'GET');
+      if (res.ok && res.data.data) {
+        currentUser = res.data.data;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateSessionUI();
+      }
+    }
+
+    // Update Profile Handler (PATCH /profiles/me)
+    async function handleUpdateProfile(e) {
+      e.preventDefault();
+      const name = document.getElementById('prof-name').value || undefined;
+      const username = document.getElementById('prof-username').value || undefined;
+      const bio = document.getElementById('prof-bio').value || undefined;
+      const avatarUrl = document.getElementById('prof-avatar').value || undefined;
+      const websiteUrl = document.getElementById('prof-website').value || undefined;
+      const location = document.getElementById('prof-location').value || undefined;
+      const locale = document.getElementById('prof-locale').value;
+      const isPrivate = document.getElementById('prof-private').checked;
+
+      const payload = { name, username, bio, avatarUrl, websiteUrl, location, locale, isPrivate };
+
+      const res = await apiRequest('/api/v1/profiles/me', 'PATCH', payload);
+      if (res.ok && res.data.data) {
+        currentUser = res.data.data;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateSessionUI();
+        showToast(res.data.message || 'Profil güncellendi!', '✅');
+      }
+    }
+
+    // Logout Handler
+    async function handleLogout() {
+      if (authToken) {
+        await apiRequest('/api/v1/auth/logout', 'POST');
+      }
+      authToken = null;
+      currentUser = null;
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('currentUser');
+      updateSessionUI();
+      showToast('Oturum kapatıldı', '👋');
+    }
+
+    // Render Profile Object into Preview Card
+    function renderProfileCard(profile) {
+      if (!profile) return;
+
+      document.getElementById('card-name').textContent = profile.name || (profile.username ? `@${profile.username}` : 'Gizli Kullanıcı');
+      document.getElementById('card-username').textContent = profile.username ? `@${profile.username}` : '@username-yok';
+      document.getElementById('card-bio').textContent = profile.bio || 'Biyografi henüz eklenmedi.';
+      document.getElementById('card-role').textContent = profile.role ? `Rol: ${profile.role}` : 'Rol: GUEST';
+      document.getElementById('card-locale').textContent = profile.locale ? `Dil: ${profile.locale.toUpperCase()}` : 'Dil: TR';
+      document.getElementById('card-private').textContent = profile.isPrivate ? '🔒 Gizli' : '🌐 Açık';
+      
+      if (profile.avatarUrl) {
+        document.getElementById('card-avatar').src = profile.avatarUrl;
+      } else {
+        document.getElementById('card-avatar').src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80';
+      }
+
+      if (profile.isVerified) {
+        document.getElementById('card-verified').classList.remove('hidden');
+      } else {
+        document.getElementById('card-verified').classList.add('hidden');
+      }
+    }
+
+    // Public Profile Search by @username
+    async function handleSearchUsername() {
+      const query = document.getElementById('search-input').value.trim();
+      if (!query) return showToast('Lütfen bir kullanıcı adı girin', '💡');
+
+      const cleanUsername = query.replace('@', '');
+      const res = await apiRequest(`/api/v1/profiles/username/${cleanUsername}`, 'GET');
+      if (res.ok && res.data.data) {
+        renderProfileCard(res.data.data);
+        showToast('Profil kartta gösterildi!', '🔍');
+      }
+    }
+
+    // Public Profile Search by UUID
+    async function handleSearchUUID() {
+      const query = document.getElementById('search-input').value.trim();
+      if (!query) return showToast('Lütfen bir UUID girin', '💡');
+
+      const res = await apiRequest(`/api/v1/profiles/${query}`, 'GET');
+      if (res.ok && res.data.data) {
+        renderProfileCard(res.data.data);
+        showToast('Profil kartta gösterildi!', '🔍');
+      }
+    }
+
+    // Toast Helper
+    function showToast(message, icon = '✨') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = message;
+      document.getElementById('toast-icon').textContent = icon;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+  </script>
+
+</body>
+</html>
