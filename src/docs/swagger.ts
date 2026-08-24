@@ -834,7 +834,7 @@ All endpoints are under \`/api/v1\`. Future versions will be available under \`/
     {
       url:
         env.nodeEnv === 'production'
-          ? 'https://your-project.vercel.app'
+          ? 'https://3d-panel-backend-gilt.vercel.app'
           : `http://localhost:${String(env.port)}`,
       description: env.nodeEnv === 'production' ? 'Production' : 'Local Development',
     },
