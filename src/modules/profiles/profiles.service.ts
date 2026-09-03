@@ -11,13 +11,32 @@
  */
 
 import { ProfilesRepository } from './profiles.repository';
-import type { Profile, PrivateProfileView, UpdateProfileInput } from '../../types/auth.types';
+import { FriendsRepository } from '../friends/friends.repository';
+import type { Profile, PublicProfileView, PrivateProfileView, UpdateProfileInput } from '../../types/auth.types';
 import type { SupportedLocale } from '../../types/i18n.types';
 import { isSupportedLocale } from '../../types/i18n.types';
 import { NotFoundError } from '../../utils/errors';
 import { getSupabaseAdmin } from '../../config/supabase';
 
-// ─── Private profile shape ────────────────────────────────────────────────────
+// ─── Profile view mappers ─────────────────────────────────────────────────────
+
+function toPublicView(profile: Profile): PublicProfileView {
+  return {
+    id: profile.id,
+    name: profile.name,
+    username: profile.username,
+    bio: profile.bio,
+    avatarUrl: profile.avatarUrl,
+    websiteUrl: profile.websiteUrl,
+    location: profile.location,
+    role: profile.role,
+    isVerified: profile.isVerified,
+    verifiedAt: profile.verifiedAt,
+    isPrivate: false,
+    createdAt: profile.createdAt,
+    updatedAt: profile.updatedAt,
+  };
+}
 
 function toPrivateView(profile: Profile): PrivateProfileView {
   return {
@@ -33,7 +52,10 @@ function toPrivateView(profile: Profile): PrivateProfileView {
 // ─── Service ─────────────────────────────────────────────────────────────────
 
 export class ProfilesService {
-  constructor(private readonly repo: ProfilesRepository) {}
+  constructor(
+    private readonly repo: ProfilesRepository,
+    private readonly friendsRepo: FriendsRepository = new FriendsRepository(),
+  ) {}
 
   /**
    * Get own profile — always returns full data.
@@ -49,20 +71,29 @@ export class ProfilesService {
   async getById(
     targetId: string,
     viewerId: string | null,
-  ): Promise<Profile | PrivateProfileView> {
+  ): Promise<Profile | PublicProfileView | PrivateProfileView> {
     const profile = await this.repo.findById(targetId);
 
     if (!profile) {
       throw new NotFoundError('Profile', 'PROFILE_NOT_FOUND');
     }
 
-    // Owner always sees full profile
+    // Owner always sees full profile (including email & locale)
     if (viewerId === profile.id) return profile;
 
-    // Private profile → limited view for non-owners
-    if (profile.isPrivate) return toPrivateView(profile);
+    // Private profile → check if viewer is an accepted friend
+    if (profile.isPrivate) {
+      if (viewerId) {
+        const pair = await this.friendsRepo.findPair(viewerId, profile.id);
+        if (pair?.status === 'accepted') {
+          return toPublicView(profile);
+        }
+      }
+      return toPrivateView(profile);
+    }
 
-    return profile;
+    // Public non-owner profile → public view without email
+    return toPublicView(profile);
   }
 
   /**
@@ -72,7 +103,7 @@ export class ProfilesService {
   async getByUsername(
     username: string,
     viewerId: string | null,
-  ): Promise<Profile | PrivateProfileView> {
+  ): Promise<Profile | PublicProfileView | PrivateProfileView> {
     const profile = await this.repo.findByUsername(username);
 
     if (!profile) {
@@ -80,9 +111,18 @@ export class ProfilesService {
     }
 
     if (viewerId === profile.id) return profile;
-    if (profile.isPrivate) return toPrivateView(profile);
 
-    return profile;
+    if (profile.isPrivate) {
+      if (viewerId) {
+        const pair = await this.friendsRepo.findPair(viewerId, profile.id);
+        if (pair?.status === 'accepted') {
+          return toPublicView(profile);
+        }
+      }
+      return toPrivateView(profile);
+    }
+
+    return toPublicView(profile);
   }
 
   /**
@@ -136,5 +176,34 @@ export class ProfilesService {
       console.warn('[ProfilesService.deleteMe] Failed to delete auth user:', error.message);
       // Don't throw — profile is already soft-deleted, auth cleanup is best-effort
     }
+  }
+
+  /**
+   * List all registered profiles (Directory).
+   */
+  async listProfiles(viewerId: string | null): Promise<(PublicProfileView | PrivateProfileView)[]> {
+    const rawProfiles = await this.repo.listAll();
+    const result: (PublicProfileView | PrivateProfileView)[] = [];
+
+    for (const p of rawProfiles) {
+      if (viewerId === p.id) {
+        result.push(toPublicView(p));
+        continue;
+      }
+      if (p.isPrivate) {
+        if (viewerId) {
+          const pair = await this.friendsRepo.findPair(viewerId, p.id);
+          if (pair?.status === 'accepted') {
+            result.push(toPublicView(p));
+            continue;
+          }
+        }
+        result.push(toPrivateView(p));
+      } else {
+        result.push(toPublicView(p));
+      }
+    }
+
+    return result;
   }
 }

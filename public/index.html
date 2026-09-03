@@ -591,6 +591,7 @@
       <button class="nav-btn" onclick="switchTab('login')">Giriş Yap (Login)</button>
       <button class="nav-btn" onclick="switchTab('profile')">Profilim (Profile)</button>
       <button class="nav-btn" onclick="switchTab('search')">Profil Ara (Lookup)</button>
+      <button class="nav-btn" onclick="switchTab('friends')">Arkadaşlık (Friends)</button>
     </div>
 
     <div class="auth-badge">
@@ -744,6 +745,66 @@
           <button type="button" class="btn" onclick="handleSearchUsername()">@username ile Ara</button>
           <button type="button" class="btn btn-secondary" onclick="handleSearchUUID()">UUID ile Ara</button>
         </div>
+
+        <!-- Registered Users Directory Card (Search Tab) -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.2rem; margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+            <h4 style="font-size: 1rem; color: #38bdf8;">🌐 Kayıtlı Tüm Kullanıcılar</h4>
+            <button type="button" class="btn btn-secondary" onclick="fetchUserDirectory()" style="padding: 4px 12px; font-size: 0.75rem;">Yenile</button>
+          </div>
+          <div id="user-directory-container" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 240px; overflow-y: auto;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Yükleniyor...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Friends / Follow Management -->
+      <div id="section-friends" class="hidden">
+        <h2 class="card-title">Arkadaşlık & Takip Sistemi 🤝</h2>
+        <p class="card-subtitle">Facebook Tarzı İstek, Kabul, Reddet & Takip Listesi (/api/v1/friends)</p>
+
+        <!-- Send Request Card -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.2rem; margin-bottom: 1.5rem;">
+          <h4 style="margin-bottom: 0.8rem; font-size: 1rem; color: var(--accent-cyan);">➕ Arkadaşlık İsteği Gönder</h4>
+          <div class="form-group" style="margin-bottom: 0.8rem;">
+            <label class="form-label" for="friend-target-id">Hedef Kullanıcı (Aşağıdaki listeden seçebilirsiniz)</label>
+            <input type="text" id="friend-target-id" class="form-input" placeholder="Aşağıdaki listeden 'Seç' butonuna basın...">
+          </div>
+          <button type="button" class="btn" onclick="handleSendFriendRequest()" style="width: 100%;">Arkadaşlık İsteği Gönder</button>
+        </div>
+
+        <!-- Incoming Requests Card -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.2rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+            <h4 style="font-size: 1rem; color: var(--accent-purple);">📥 Gelen Arkadaşlık İstekleri</h4>
+            <button type="button" class="btn btn-secondary" onclick="fetchIncomingRequests()" style="padding: 4px 12px; font-size: 0.75rem;">Yenile</button>
+          </div>
+          <div id="incoming-requests-list" style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Yükleniyor veya istek yok...</div>
+          </div>
+        </div>
+
+        <!-- Friends Directory Selector -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.2rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+            <h4 style="font-size: 1rem; color: #38bdf8;">🌐 Tüm Kullanıcılar Listesi (İstek Atmak İçin Seçin)</h4>
+            <button type="button" class="btn btn-secondary" onclick="fetchUserDirectory()" style="padding: 4px 12px; font-size: 0.75rem;">Yenile</button>
+          </div>
+          <div id="friends-directory-container" style="display: flex; flex-direction: column; gap: 0.6rem; max-height: 220px; overflow-y: auto;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Yükleniyor...</div>
+          </div>
+        </div>
+
+        <!-- Friends List Card -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 14px; padding: 1.2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+            <h4 style="font-size: 1rem; color: #34d399;">👥 Arkadaş Listesi</h4>
+            <button type="button" class="btn btn-secondary" onclick="fetchMyFriendsList()" style="padding: 4px 12px; font-size: 0.75rem;">Yenile</button>
+          </div>
+          <div id="friends-list-container" style="display: flex; flex-direction: column; gap: 0.6rem;">
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Henüz arkadaşın yok.</div>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -813,14 +874,21 @@
 
     // Navigation Tab Switcher
     function switchTab(tab) {
-      const tabs = ['register', 'login', 'profile', 'search'];
+      const tabs = ['register', 'login', 'profile', 'search', 'friends'];
       tabs.forEach(t => {
-        document.getElementById(`section-${t}`).classList.add('hidden');
+        const el = document.getElementById(`section-${t}`);
+        if (el) el.classList.add('hidden');
       });
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-      document.getElementById(`section-${tab}`).classList.remove('hidden');
-      event.target.classList.add('active');
+      const activeSection = document.getElementById(`section-${tab}`);
+      if (activeSection) activeSection.classList.remove('hidden');
+      if (event && event.target) event.target.classList.add('active');
+
+      if (tab === 'friends' || tab === 'search') {
+        fetchUserDirectory();
+        if (tab === 'friends') loadFriendData();
+      }
     }
 
     // Update Session Badge & Profile UI
@@ -1044,6 +1112,139 @@
       if (res.ok && res.data.data) {
         renderProfileCard(res.data.data);
         showToast('Profil kartta gösterildi!', '🔍');
+      }
+    }
+
+    // Fetch Directory of All Registered Users
+    async function fetchUserDirectory() {
+      const res = await apiRequest('/api/v1/profiles', 'GET');
+      const container = document.getElementById('user-directory-container');
+      const containerFriends = document.getElementById('friends-directory-container');
+
+      if (res.ok && Array.isArray(res.data.data)) {
+        const html = res.data.data.map(u => {
+          const isMe = currentUser && currentUser.id === u.id;
+          const displayName = u.name || (u.username ? '@' + u.username : 'Kullanıcı');
+          return `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px; font-size: 0.85rem;">
+              <div>
+                <span style="font-weight: 700; color: white;">${displayName}</span>
+                <span style="color: #38bdf8; font-size: 0.75rem; margin-left: 4px;">${u.username ? '@' + u.username : ''}</span>
+                ${isMe ? '<span style="background: rgba(112,0,255,0.4); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; margin-left: 6px; font-weight:700;">SEN</span>' : ''}
+              </div>
+              <div style="display: flex; gap: 4px;">
+                ${!isMe ? `<button class="btn" onclick="selectUserForFriend('${u.id}', '${displayName}')" style="padding: 3px 8px; font-size: 0.7rem;">Seç / İstek At</button>` : ''}
+                <button class="btn btn-secondary" onclick="previewUserCard('${u.id}')" style="padding: 3px 8px; font-size: 0.7rem;">Görüntüle</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        if (container) container.innerHTML = html || '<div style="font-size: 0.85rem; color: var(--text-muted);">Kayıtlı kullanıcı bulunamadı.</div>';
+        if (containerFriends) containerFriends.innerHTML = html || '<div style="font-size: 0.85rem; color: var(--text-muted);">Kayıtlı kullanıcı bulunamadı.</div>';
+      }
+    }
+
+    function selectUserForFriend(userId, name) {
+      const input = document.getElementById('friend-target-id');
+      const searchInput = document.getElementById('search-input');
+      if (input) input.value = userId;
+      if (searchInput) searchInput.value = userId;
+      showToast(`${name} seçildi!`, '🎯');
+    }
+
+    async function previewUserCard(userId) {
+      const res = await apiRequest(`/api/v1/profiles/${userId}`, 'GET');
+      if (res.ok && res.data.data) {
+        renderProfileCard(res.data.data);
+        showToast('Profil kartta gösterildi!', '🔍');
+      }
+    }
+
+    // Friends JS Handlers
+    async function loadFriendData() {
+      if (!authToken) return showToast('Lütfen önce giriş yapın', '💡');
+      await Promise.all([fetchIncomingRequests(), fetchMyFriendsList(), fetchUserDirectory()]);
+    }
+
+    async function handleSendFriendRequest(targetIdOverride) {
+      const targetUserId = targetIdOverride || document.getElementById('friend-target-id').value.trim();
+      if (!targetUserId) return showToast('Lütfen hedef kullanıcı ID girin', '💡');
+
+      const res = await apiRequest(`/api/v1/friends/request/${targetUserId}`, 'POST');
+      if (res.ok) {
+        showToast(res.data.message || 'Arkadaşlık isteği gönderildi!', '🤝');
+        fetchIncomingRequests();
+      }
+    }
+
+    async function fetchIncomingRequests() {
+      if (!authToken) return;
+      const res = await apiRequest('/api/v1/friends/requests', 'GET');
+      const container = document.getElementById('incoming-requests-list');
+      if (!container) return;
+
+      if (res.ok && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        container.innerHTML = res.data.data.map(req => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px;">
+            <div>
+              <div style="font-weight: 600; font-size: 0.85rem;">${req.user.name || req.user.username}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${req.user.username ? '@' + req.user.username : req.user.id}</div>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button class="btn" onclick="handleAcceptRequest('${req.id}')" style="padding: 4px 10px; font-size: 0.75rem;">Kabul Et</button>
+              <button class="btn btn-secondary" onclick="handleRejectRequest('${req.id}')" style="padding: 4px 10px; font-size: 0.75rem;">Reddet</button>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        container.innerHTML = `<div style="font-size: 0.85rem; color: var(--text-muted);">Gelen arkadaşlık isteği yok.</div>`;
+      }
+    }
+
+    async function handleAcceptRequest(requestId) {
+      const res = await apiRequest(`/api/v1/friends/accept/${requestId}`, 'POST');
+      if (res.ok) {
+        showToast(res.data.message || 'İstek kabul edildi!', '🎉');
+        fetchIncomingRequests();
+        fetchMyFriendsList();
+      }
+    }
+
+    async function handleRejectRequest(requestId) {
+      const res = await apiRequest(`/api/v1/friends/reject/${requestId}`, 'DELETE');
+      if (res.ok) {
+        showToast(res.data.message || 'İstek reddedildi', '👋');
+        fetchIncomingRequests();
+      }
+    }
+
+    async function handleUnfriend(targetUserId) {
+      const res = await apiRequest(`/api/v1/friends/unfriend/${targetUserId}`, 'DELETE');
+      if (res.ok) {
+        showToast(res.data.message || 'Arkadaşlıktan çıkarıldı', '👋');
+        fetchMyFriendsList();
+      }
+    }
+
+    async function fetchMyFriendsList() {
+      if (!authToken || !currentUser) return;
+      const res = await apiRequest(`/api/v1/friends/list/${currentUser.id}`, 'GET');
+      const container = document.getElementById('friends-list-container');
+      if (!container) return;
+
+      if (res.ok && Array.isArray(res.data.data) && res.data.data.length > 0) {
+        container.innerHTML = res.data.data.map(friend => `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 10px;">
+            <div>
+              <div style="font-weight: 600; font-size: 0.85rem;">${friend.name || friend.username}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">${friend.username ? '@' + friend.username : friend.id}</div>
+            </div>
+            <button class="btn btn-secondary" onclick="handleUnfriend('${friend.id}')" style="padding: 4px 10px; font-size: 0.75rem;">Çıkar</button>
+          </div>
+        `).join('');
+      } else {
+        container.innerHTML = `<div style="font-size: 0.85rem; color: var(--text-muted);">Henüz arkadaşınız yok.</div>`;
       }
     }
 

@@ -92,6 +92,20 @@ export const profilesController = {
   },
 
   /**
+   * GET /api/v1/profiles
+   * Public directory endpoint — returns all registered profiles.
+   */
+  async list(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const viewerId = req.user?.id ?? null;
+      const profiles = await profilesService.listProfiles(viewerId);
+      sendSuccess(res, profiles);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
    * DELETE /api/v1/profiles/me
    * Soft-deletes the authenticated user's own account.
    */

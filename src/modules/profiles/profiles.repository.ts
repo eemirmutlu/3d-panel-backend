@@ -136,4 +136,19 @@ export class ProfilesRepository {
       throw new InternalError(`Failed to delete profile: ${error.message}`);
     }
   }
+
+  async listAll(limit = 50): Promise<Profile[]> {
+    const { data, error } = await this.db
+      .from('profiles')
+      .select(SELECT_COLUMNS)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      throw new InternalError(`Failed to list profiles: ${error.message}`);
+    }
+
+    return (data || []).map((row) => mapRow(row as unknown as ProfileRow));
+  }
 }

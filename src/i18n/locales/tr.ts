@@ -61,6 +61,16 @@ const tr: TranslationMap = {
   'profile.usernameInUse': 'Bu kullanıcı adı zaten alınmış',
   'profile.unauthorized': 'Bu profili düzenleme yetkiniz yok',
   'profile.isPrivate': 'Bu profil gizlidir',
+
+  // ── Friends ───────────────────────────────────────────────────────────────
+  'friends.requestSent': 'Arkadaşlık isteği başarıyla gönderildi',
+  'friends.requestAccepted': 'Arkadaşlık isteği kabul edildi',
+  'friends.requestRejected': 'Arkadaşlık isteği reddedildi',
+  'friends.unfriended': 'Arkadaş listesinden çıkarıldı',
+  'friends.cannotAddSelf': 'Kendi kendinize arkadaşlık isteği gönderemezsiniz',
+  'friends.alreadyFriends': 'Bu kullanıcıyla zaten arkadaşsınız',
+  'friends.requestAlreadySent': 'Zaten bekleyen bir arkadaşlık isteği var',
+  'friends.requestNotFound': 'Arkadaşlık isteği bulunamadı',
 };
 
 export default tr;

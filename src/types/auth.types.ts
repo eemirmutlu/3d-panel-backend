@@ -32,6 +32,28 @@ export interface Profile {
 }
 
 /**
+ * Public profile view — returned for public profiles (isPrivate = false)
+ * when requested by non-owners.
+ *
+ * Does NOT include private user fields like `email` or `locale`.
+ */
+export interface PublicProfileView {
+  id: string;
+  name: string;
+  username: string | null;
+  bio: string | null;
+  avatarUrl: string | null;
+  websiteUrl: string | null;
+  location: string | null;
+  role: UserRole;
+  isVerified: boolean;
+  verifiedAt: string | null;
+  isPrivate: false;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
  * Limited profile view — returned when the requesting user is not the owner
  * and the profile has `isPrivate = true`.
  *

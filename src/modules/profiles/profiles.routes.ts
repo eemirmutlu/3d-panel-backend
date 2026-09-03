@@ -10,11 +10,19 @@
 
 import { Router } from 'express';
 import { profilesController } from './profiles.controller';
-import { authenticate } from '../../middlewares/auth.middleware';
+import { authenticate, optionalAuthenticate } from '../../middlewares/auth.middleware';
 import { validate } from '../../middlewares/validation.middleware';
 import { updateProfileSchema } from './profiles.validator';
 
 const router = Router();
+
+// ── Directory route ───────────────────────────────────────────────────────────
+
+/**
+ * GET /api/v1/profiles
+ * Fetch all registered profiles (Directory).
+ */
+router.get('/', optionalAuthenticate, profilesController.list);
 
 // ── Own profile (no userId in URL) ────────────────────────────────────────────
 

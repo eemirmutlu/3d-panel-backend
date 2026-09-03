@@ -62,6 +62,16 @@ const en: TranslationMap = {
   'profile.usernameInUse': 'This username is already taken',
   'profile.unauthorized': 'You are not authorized to modify this profile',
   'profile.isPrivate': 'This profile is private',
+
+  // ── Friends ───────────────────────────────────────────────────────────────
+  'friends.requestSent': 'Friend request sent successfully',
+  'friends.requestAccepted': 'Friend request accepted',
+  'friends.requestRejected': 'Friend request rejected',
+  'friends.unfriended': 'Removed from friends list',
+  'friends.cannotAddSelf': 'You cannot send a friend request to yourself',
+  'friends.alreadyFriends': 'You are already friends with this user',
+  'friends.requestAlreadySent': 'A friend request is already pending',
+  'friends.requestNotFound': 'Friend request not found',
 };
 
 export default en;

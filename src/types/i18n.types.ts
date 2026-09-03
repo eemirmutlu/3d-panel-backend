@@ -80,7 +80,17 @@ export type TranslationKey =
   | 'profile.notFound'
   | 'profile.usernameInUse'
   | 'profile.unauthorized'
-  | 'profile.isPrivate';
+  | 'profile.isPrivate'
+
+  // ── Friends Success & Errors ──────────────────────────────────────────────
+  | 'friends.requestSent'
+  | 'friends.requestAccepted'
+  | 'friends.requestRejected'
+  | 'friends.unfriended'
+  | 'friends.cannotAddSelf'
+  | 'friends.alreadyFriends'
+  | 'friends.requestAlreadySent'
+  | 'friends.requestNotFound';
 
 /**
  * The shape every locale file must satisfy.

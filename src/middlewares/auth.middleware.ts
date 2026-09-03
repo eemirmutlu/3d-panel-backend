@@ -109,3 +109,49 @@ export function authorize(...allowedRoles: UserRole[]) {
     next();
   };
 }
+
+/**
+ * Middleware: optional authentication.
+ * Populates req.user if a valid Bearer JWT is provided; otherwise proceeds as unauthenticated.
+ */
+export async function optionalAuthenticate(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const token = extractBearerToken(req);
+    if (!token) {
+      next();
+      return;
+    }
+
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase.auth.getUser(token);
+    if (error || !data.user) {
+      next();
+      return;
+    }
+
+    const supabaseUser = data.user;
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('role, locale')
+      .eq('id', supabaseUser.id)
+      .single();
+
+    if (profileData) {
+      const profile = profileData as unknown as ProfileRoleRow;
+      const profileLocale: SupportedLocale = isSupportedLocale(profile.locale) ? profile.locale : 'en';
+      req.user = {
+        id: supabaseUser.id,
+        email: supabaseUser.email ?? '',
+        role: (profile.role as UserRole) ?? 'user',
+        locale: profileLocale,
+      };
+    }
+    next();
+  } catch {
+    next();
+  }
+}

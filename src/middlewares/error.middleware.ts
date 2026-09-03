@@ -32,7 +32,10 @@ export function errorMiddleware(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction,
 ): void {
-  const isDev = env.nodeEnv === 'development';
+  const isDev =
+    env.nodeEnv === 'development' &&
+    process.env['NODE_ENV'] !== 'production' &&
+    process.env['VERCEL_ENV'] !== 'production';
   const locale: SupportedLocale = req.locale ?? 'en';
 
   // ── Operational AppError ─────────────────────────────────────────────────

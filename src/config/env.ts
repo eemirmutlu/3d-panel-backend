@@ -45,8 +45,10 @@ function optionalEnv(key: string, defaultValue: string): string {
   return process.env[key]?.trim() ?? defaultValue;
 }
 
-function parseNodeEnv(value: string): NodeEnv {
-  if (value === 'production' || value === 'test') return value;
+function parseNodeEnv(): NodeEnv {
+  const envVal = (process.env.NODE_ENV ?? process.env.VERCEL_ENV ?? '').trim().toLowerCase();
+  if (envVal === 'production' || envVal === 'prod') return 'production';
+  if (envVal === 'test') return 'test';
   return 'development';
 }
 
@@ -56,7 +58,7 @@ function buildConfig(): EnvConfig {
 
   return {
     port: parseInt(optionalEnv('PORT', '3000'), 10),
-    nodeEnv: parseNodeEnv(optionalEnv('NODE_ENV', 'development')),
+    nodeEnv: parseNodeEnv(),
 
     supabase: {
       url: requireEnv('SUPABASE_URL'),

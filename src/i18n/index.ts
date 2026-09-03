@@ -55,6 +55,12 @@ const errorCodeToKey: Partial<Record<string, TranslationKey>> = {
   USERNAME_IN_USE: 'profile.usernameInUse',
   PROFILE_UNAUTHORIZED: 'profile.unauthorized',
   PROFILE_IS_PRIVATE: 'profile.isPrivate',
+
+  // Friends errors
+  CANNOT_ADD_SELF: 'friends.cannotAddSelf',
+  ALREADY_FRIENDS: 'friends.alreadyFriends',
+  REQUEST_ALREADY_SENT: 'friends.requestAlreadySent',
+  REQUEST_NOT_FOUND: 'friends.requestNotFound',
 };
 
 // ── Core translate function ────────────────────────────────────────────────────

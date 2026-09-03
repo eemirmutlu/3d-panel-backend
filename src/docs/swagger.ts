@@ -33,6 +33,7 @@ const components = {
 
     SuccessResponse: {
       type: 'object',
+      required: ['success', 'message'],
       properties: {
         success: { type: 'boolean', example: true },
         message: { type: 'string', example: 'Success' },
@@ -42,11 +43,13 @@ const components = {
 
     ErrorResponse: {
       type: 'object',
+      required: ['success', 'message', 'error'],
       properties: {
         success: { type: 'boolean', example: false },
         message: { type: 'string', example: 'Something went wrong' },
         error: {
           type: 'object',
+          required: ['code'],
           properties: {
             code: { type: 'string', example: 'SOME_ERROR_CODE' },
           },
@@ -56,6 +59,7 @@ const components = {
 
     ValidationErrorResponse: {
       type: 'object',
+      required: ['success', 'message', 'errors'],
       properties: {
         success: { type: 'boolean', example: false },
         message: { type: 'string', example: 'Validation failed' },
@@ -63,6 +67,7 @@ const components = {
           type: 'array',
           items: {
             type: 'object',
+            required: ['field', 'message'],
             properties: {
               field: { type: 'string', example: 'email' },
               message: { type: 'string', example: 'Invalid email address' },
@@ -76,6 +81,18 @@ const components = {
 
     Profile: {
       type: 'object',
+      description: 'Full user profile — returned ONLY to the profile owner.',
+      required: [
+        'id',
+        'email',
+        'name',
+        'role',
+        'locale',
+        'isVerified',
+        'isPrivate',
+        'createdAt',
+        'updatedAt',
+      ],
       properties: {
         id: {
           type: 'string',
@@ -129,9 +146,43 @@ const components = {
       },
     },
 
+    PublicProfileView: {
+      type: 'object',
+      description: 'Public profile view — returned to non-owners for public profiles (isPrivate = false). Excludes private email and locale fields.',
+      required: [
+        'id',
+        'name',
+        'role',
+        'isVerified',
+        'isPrivate',
+        'createdAt',
+        'updatedAt',
+      ],
+      properties: {
+        id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
+        name: { type: 'string', example: 'Emir' },
+        username: { type: 'string', nullable: true, example: 'emir_dev' },
+        bio: { type: 'string', nullable: true, example: 'Full-stack engineer & 3D enthusiast' },
+        avatarUrl: { type: 'string', nullable: true, example: 'https://example.com/avatar.jpg' },
+        websiteUrl: { type: 'string', nullable: true, example: 'https://emir.dev' },
+        location: { type: 'string', nullable: true, example: 'Istanbul, TR' },
+        role: {
+          type: 'string',
+          enum: ['user', 'admin', 'moderator'],
+          example: 'user',
+        },
+        isVerified: { type: 'boolean', example: true },
+        verifiedAt: { type: 'string', format: 'date-time', nullable: true, example: '2024-01-01T00:00:00.000Z' },
+        isPrivate: { type: 'boolean', example: false },
+        createdAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+        updatedAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+      },
+    },
+
     PrivateProfileView: {
       type: 'object',
-      description: 'Returned when a profile is private and requested by a non-owner.',
+      description: 'Limited private profile view — returned to non-owners when a profile is private (isPrivate = true).',
+      required: ['id', 'isVerified', 'isPrivate'],
       properties: {
         id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
         username: { type: 'string', nullable: true, example: 'emir_dev' },
@@ -142,8 +193,46 @@ const components = {
       },
     },
 
+    Friendship: {
+      type: 'object',
+      required: ['id', 'requesterId', 'addresseeId', 'status', 'createdAt', 'updatedAt'],
+      properties: {
+        id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
+        requesterId: { type: 'string', format: 'uuid', example: '11111111-e29b-41d4-a716-446655440000' },
+        addresseeId: { type: 'string', format: 'uuid', example: '22222222-e29b-41d4-a716-446655440000' },
+        status: { type: 'string', enum: ['pending', 'accepted', 'blocked'], example: 'pending' },
+        createdAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+        updatedAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+      },
+    },
+
+    FriendRequestItem: {
+      type: 'object',
+      required: ['id', 'status', 'createdAt', 'user'],
+      properties: {
+        id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
+        status: { type: 'string', enum: ['pending', 'accepted', 'blocked'], example: 'pending' },
+        createdAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+        user: { $ref: '#/components/schemas/PublicProfileView' },
+      },
+    },
+
+    FriendRelationStatusResponse: {
+      type: 'object',
+      required: ['relation'],
+      properties: {
+        relation: {
+          type: 'string',
+          enum: ['none', 'self', 'pending_sent', 'pending_received', 'accepted', 'blocked'],
+          example: 'accepted',
+        },
+        requestId: { type: 'string', format: 'uuid', nullable: true, example: '550e8400-e29b-41d4-a716-446655440000' },
+      },
+    },
+
     AuthTokens: {
       type: 'object',
+      required: ['accessToken', 'refreshToken', 'expiresAt', 'tokenType'],
       properties: {
         accessToken: {
           type: 'string',
@@ -166,6 +255,7 @@ const components = {
 
     AuthResult: {
       type: 'object',
+      required: ['user', 'tokens'],
       properties: {
         user: { $ref: '#/components/schemas/Profile' },
         tokens: { $ref: '#/components/schemas/AuthTokens' },
@@ -696,8 +786,12 @@ const paths = {
                       data: {
                         oneOf: [
                           { $ref: '#/components/schemas/Profile' },
+                          { $ref: '#/components/schemas/PublicProfileView' },
                           { $ref: '#/components/schemas/PrivateProfileView' },
                         ],
+                        discriminator: {
+                          propertyName: 'isPrivate',
+                        },
                       },
                     },
                   },
@@ -747,8 +841,12 @@ const paths = {
                       data: {
                         oneOf: [
                           { $ref: '#/components/schemas/Profile' },
+                          { $ref: '#/components/schemas/PublicProfileView' },
                           { $ref: '#/components/schemas/PrivateProfileView' },
                         ],
+                        discriminator: {
+                          propertyName: 'isPrivate',
+                        },
                       },
                     },
                   },
@@ -766,6 +864,123 @@ const paths = {
           },
         },
       },
+    },
+  },
+
+  '/api/v1/friends/request/{targetUserId}': {
+    post: {
+      tags: ['Friends'],
+      summary: 'Send friend request',
+      description: 'Sends a pending friend request to target user.',
+      operationId: 'sendFriendRequest',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'targetUserId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: {
+        201: {
+          description: 'Friend request sent',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/Friendship' } } },
+        },
+        400: { description: 'Cannot add self' },
+        409: { description: 'Already friends or request pending' },
+      },
+    },
+  },
+
+  '/api/v1/friends/accept/{requestId}': {
+    post: {
+      tags: ['Friends'],
+      summary: 'Accept friend request',
+      description: 'Accepts an incoming friend request.',
+      operationId: 'acceptFriendRequest',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'requestId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: {
+        200: {
+          description: 'Friend request accepted',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/Friendship' } } },
+        },
+      },
+    },
+  },
+
+  '/api/v1/friends/reject/{requestId}': {
+    delete: {
+      tags: ['Friends'],
+      summary: 'Reject or cancel friend request',
+      operationId: 'rejectFriendRequest',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'requestId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: { 200: { description: 'Request rejected/cancelled' } },
+    },
+  },
+
+  '/api/v1/friends/unfriend/{targetUserId}': {
+    delete: {
+      tags: ['Friends'],
+      summary: 'Remove friend',
+      operationId: 'unfriendUser',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'targetUserId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: { 200: { description: 'Unfriended successfully' } },
+    },
+  },
+
+  '/api/v1/friends/status/{targetUserId}': {
+    get: {
+      tags: ['Friends'],
+      summary: 'Get relationship status',
+      description: 'Returns relationship state between authenticated user and target user.',
+      operationId: 'getFriendshipStatus',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'targetUserId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: {
+        200: {
+          description: 'Relationship status returned',
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/FriendRelationStatusResponse' } } },
+        },
+      },
+    },
+  },
+
+  '/api/v1/friends/requests': {
+    get: {
+      tags: ['Friends'],
+      summary: 'Get incoming friend requests',
+      operationId: 'getIncomingFriendRequests',
+      security: [{ bearerAuth: [] }],
+      responses: { 200: { description: 'List of incoming requests' } },
+    },
+  },
+
+  '/api/v1/friends/sent-requests': {
+    get: {
+      tags: ['Friends'],
+      summary: 'Get sent friend requests',
+      operationId: 'getSentFriendRequests',
+      security: [{ bearerAuth: [] }],
+      responses: { 200: { description: 'List of sent requests' } },
+    },
+  },
+
+  '/api/v1/friends/list/{userId}': {
+    get: {
+      tags: ['Friends'],
+      summary: 'Get user friends list',
+      operationId: 'getUserFriendsList',
+      parameters: [
+        { name: 'userId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: { 200: { description: 'List of accepted friends' } },
     },
   },
 
@@ -847,6 +1062,10 @@ All endpoints are under \`/api/v1\`. Future versions will be available under \`/
     {
       name: 'Profiles',
       description: 'User profile management, username handles, privacy controls',
+    },
+    {
+      name: 'Friends',
+      description: 'Facebook-style friend requests, accept/reject, relationships, and friends lists',
     },
     { name: 'System', description: 'API health and status endpoints' },
   ],
