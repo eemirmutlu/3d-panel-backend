@@ -27,6 +27,7 @@ export interface Profile {
   isVerified: boolean;
   verifiedAt: string | null;
   isPrivate: boolean;
+  isAdmin: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +50,7 @@ export interface PublicProfileView {
   isVerified: boolean;
   verifiedAt: string | null;
   isPrivate: false;
+  isAdmin: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -118,5 +120,6 @@ export interface AuthenticatedUser {
   id: string;
   email: string;
   role: UserRole;
+  isAdmin: boolean;
   locale: SupportedLocale;
 }

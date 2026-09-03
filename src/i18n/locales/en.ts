@@ -72,6 +72,14 @@ const en: TranslationMap = {
   'friends.alreadyFriends': 'You are already friends with this user',
   'friends.requestAlreadySent': 'A friend request is already pending',
   'friends.requestNotFound': 'Friend request not found',
+
+  // ── News & Admin ──────────────────────────────────────────────────────────
+  'news.created': 'News article published successfully',
+  'news.updated': 'News article updated successfully',
+  'news.deleted': 'News article deleted',
+  'news.notFound': 'News article not found',
+  'admin.unauthorized': 'Admin access required for CRM features',
+  'admin.userUpdated': 'User admin status updated successfully',
 };
 
 export default en;

@@ -30,6 +30,7 @@ interface JoinedProfileRow {
   is_verified: boolean;
   verified_at: string | null;
   is_private: boolean;
+  is_admin?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -58,6 +59,7 @@ function mapPublicProfile(row: JoinedProfileRow): PublicProfileView {
     isVerified: row.is_verified,
     verifiedAt: row.verified_at,
     isPrivate: false,
+    isAdmin: !!(row.is_admin || row.role === 'admin'),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

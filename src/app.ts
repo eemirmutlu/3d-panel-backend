@@ -19,6 +19,7 @@
  *   7. Global error handler
  */
 
+import path from 'path';
 import express, { type Application, type Request, type Response } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -73,10 +74,9 @@ function createApp(): Application {
   );
 
   // ── 3. Body Parsing & Compression ───────────────────────────────────────
-  // Limit is 10mb to support base64-encoded media uploads.
-  // For large video files, Supabase Storage is recommended instead.
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  // Limit set to 50mb for multi-image uploads and high-res media files.
+  app.use(express.json({ limit: '50mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
   app.use(compression());
 
   // ── 4. i18n — must run after body parsing so locale can be read from body ──
@@ -94,8 +94,12 @@ function createApp(): Application {
       error: { code: 'RATE_LIMIT_EXCEEDED' },
     },
     skip: (req: Request) => {
-      // Skip rate limiting for health checks and docs
-      return req.path === '/api/health' || req.path.startsWith('/api/docs');
+      // Completely skip rate limiting in development mode, or for health checks & docs
+      return (
+        env.nodeEnv === 'development' ||
+        req.path === '/api/health' ||
+        req.path.startsWith('/api/docs')
+      );
     },
   });
 
@@ -133,9 +137,14 @@ function createApp(): Application {
       success: true,
       message: '3D Blog Backend API',
       demo: '/index.html',
+      crm: '/crm.html',
       docs: '/api/docs',
       health: '/api/health',
     });
+  });
+
+  app.get('/crm', (_req: Request, res: Response) => {
+    res.sendFile(path.join(process.cwd(), 'public', 'crm.html'));
   });
 
   // ── 10. 404 Handler ──────────────────────────────────────────────────────

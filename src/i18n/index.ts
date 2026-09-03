@@ -61,6 +61,10 @@ const errorCodeToKey: Partial<Record<string, TranslationKey>> = {
   ALREADY_FRIENDS: 'friends.alreadyFriends',
   REQUEST_ALREADY_SENT: 'friends.requestAlreadySent',
   REQUEST_NOT_FOUND: 'friends.requestNotFound',
+
+  // News & Admin errors
+  NEWS_NOT_FOUND: 'news.notFound',
+  ADMIN_UNAUTHORIZED: 'admin.unauthorized',
 };
 
 // ── Core translate function ────────────────────────────────────────────────────

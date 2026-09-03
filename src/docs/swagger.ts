@@ -230,6 +230,30 @@ const components = {
       },
     },
 
+    NewsArticle: {
+      type: 'object',
+      required: ['id', 'authorId', 'title', 'slug', 'contentHtml', 'imageUrls', 'isPublished', 'publishedAt', 'createdAt', 'updatedAt'],
+      properties: {
+        id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
+        authorId: { type: 'string', format: 'uuid', example: '11111111-e29b-41d4-a716-446655440000' },
+        title: { type: 'string', example: 'New 3D Engine Release' },
+        slug: { type: 'string', example: 'new-3d-engine-release' },
+        summary: { type: 'string', nullable: true, example: 'Major performance updates and webgl2 support.' },
+        contentHtml: { type: 'string', example: '<h2>Release Notes</h2><p>Welcome to <b>3D Engine</b> update!</p>' },
+        coverImageUrl: { type: 'string', format: 'uri', nullable: true, example: 'https://example.com/cover.jpg' },
+        imageUrls: {
+          type: 'array',
+          items: { type: 'string', format: 'uri' },
+          example: ['https://example.com/1.jpg', 'https://example.com/2.jpg'],
+        },
+        isPublished: { type: 'boolean', example: true },
+        publishedAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+        createdAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+        updatedAt: { type: 'string', format: 'date-time', example: '2024-01-01T00:00:00.000Z' },
+        author: { $ref: '#/components/schemas/PublicProfileView' },
+      },
+    },
+
     AuthTokens: {
       type: 'object',
       required: ['accessToken', 'refreshToken', 'expiresAt', 'tokenType'],
@@ -984,6 +1008,94 @@ const paths = {
     },
   },
 
+  '/api/v1/news': {
+    get: {
+      tags: ['News'],
+      summary: 'Get public news feed',
+      description: 'Returns published news articles with multi-image URLs and rich HTML content.',
+      operationId: 'getNewsFeed',
+      responses: { 200: { description: 'List of news articles' } },
+    },
+  },
+
+  '/api/v1/news/{idOrSlug}': {
+    get: {
+      tags: ['News'],
+      summary: 'Get news article detail',
+      operationId: 'getNewsDetail',
+      parameters: [
+        { name: 'idOrSlug', in: 'path', required: true, schema: { type: 'string' } },
+      ],
+      responses: { 200: { description: 'News article detail' } },
+    },
+  },
+
+  '/api/v1/admin/users': {
+    get: {
+      tags: ['Admin CRM'],
+      summary: 'CRM Admin: List all users',
+      description: 'Strictly restricted to users with isAdmin = true. Returns full details of all users.',
+      operationId: 'crmListUsers',
+      security: [{ bearerAuth: [] }],
+      responses: { 200: { description: 'All users full details' }, 403: { description: 'Admin access required' } },
+    },
+  },
+
+  '/api/v1/admin/users/{userId}': {
+    patch: {
+      tags: ['Admin CRM'],
+      summary: 'CRM Admin: Update user status',
+      description: 'Grant/revoke isAdmin status, update role or verification status.',
+      operationId: 'crmUpdateUser',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'userId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: { 200: { description: 'User updated' } },
+    },
+  },
+
+  '/api/v1/admin/news': {
+    get: {
+      tags: ['Admin CRM'],
+      summary: 'CRM Admin: List all news (including drafts)',
+      operationId: 'crmListNews',
+      security: [{ bearerAuth: [] }],
+      responses: { 200: { description: 'All news articles' } },
+    },
+    post: {
+      tags: ['Admin CRM'],
+      summary: 'CRM Admin: Publish new article',
+      description: 'Publishes article with title, HTML rich text, and multiple image URLs.',
+      operationId: 'crmCreateNews',
+      security: [{ bearerAuth: [] }],
+      responses: { 201: { description: 'News published' } },
+    },
+  },
+
+  '/api/v1/admin/news/{id}': {
+    put: {
+      tags: ['Admin CRM'],
+      summary: 'CRM Admin: Update news article',
+      operationId: 'crmUpdateNews',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: { 200: { description: 'News updated' } },
+    },
+    delete: {
+      tags: ['Admin CRM'],
+      summary: 'CRM Admin: Delete news article',
+      operationId: 'crmDeleteNews',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+      ],
+      responses: { 200: { description: 'News deleted' } },
+    },
+  },
+
   '/api/health': {
     get: {
       tags: ['System'],
@@ -1066,6 +1178,14 @@ All endpoints are under \`/api/v1\`. Future versions will be available under \`/
     {
       name: 'Friends',
       description: 'Facebook-style friend requests, accept/reject, relationships, and friends lists',
+    },
+    {
+      name: 'News',
+      description: 'Public news and announcements feed with multi-image & HTML rich text support',
+    },
+    {
+      name: 'Admin CRM',
+      description: 'Strict CRM Admin APIs for full user management and news publishing (isAdmin = true required)',
     },
     { name: 'System', description: 'API health and status endpoints' },
   ],

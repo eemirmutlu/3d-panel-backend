@@ -71,6 +71,14 @@ const tr: TranslationMap = {
   'friends.alreadyFriends': 'Bu kullanıcıyla zaten arkadaşsınız',
   'friends.requestAlreadySent': 'Zaten bekleyen bir arkadaşlık isteği var',
   'friends.requestNotFound': 'Arkadaşlık isteği bulunamadı',
+
+  // ── News & Admin ──────────────────────────────────────────────────────────
+  'news.created': 'Haber başarıyla yayınlandı',
+  'news.updated': 'Haber başarıyla güncellendi',
+  'news.deleted': 'Haber silindi',
+  'news.notFound': 'Haber bulunamadı',
+  'admin.unauthorized': 'CRM özellikleri için Admin yetkisi gereklidir',
+  'admin.userUpdated': 'Kullanıcı yetki ve durum bilgisi güncellendi',
 };
 
 export default tr;

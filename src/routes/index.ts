@@ -15,6 +15,8 @@ import { Router, type Request, type Response } from 'express';
 import authRouter from '../modules/auth/auth.routes';
 import profilesRouter from '../modules/profiles/profiles.routes';
 import friendsRouter from '../modules/friends/friends.routes';
+import newsRouter from '../modules/news/news.routes';
+import adminRouter from '../modules/admin/admin.routes';
 
 // ── v1 Router ────────────────────────────────────────────────────────────────
 
@@ -23,6 +25,8 @@ const v1Router = Router();
 v1Router.use('/auth', authRouter);
 v1Router.use('/profiles', profilesRouter);
 v1Router.use('/friends', friendsRouter);
+v1Router.use('/news', newsRouter);
+v1Router.use('/admin', adminRouter);
 
 // Register future module routers here:
 // v1Router.use('/users', usersRouter);

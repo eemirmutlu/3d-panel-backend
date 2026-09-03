@@ -16,6 +16,7 @@ import { extractExplicitLocale } from './i18n.middleware';
 interface ProfileRoleRow {
   role: string;
   locale: string;
+  is_admin?: boolean;
 }
 
 function extractBearerToken(req: Request): string | null {
@@ -51,7 +52,7 @@ export async function authenticate(
 
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
-      .select('role, locale')
+      .select('role, locale, is_admin')
       .eq('id', supabaseUser.id)
       .single();
 
@@ -68,10 +69,13 @@ export async function authenticate(
     const explicitLocale = extractExplicitLocale(req);
     req.locale = explicitLocale ?? profileLocale;
 
+    const isAdmin = !!(profile.is_admin || profile.role === 'admin');
+
     const authenticatedUser: AuthenticatedUser = {
       id: supabaseUser.id,
       email: supabaseUser.email ?? '',
       role: (profile.role as UserRole) ?? 'user',
+      isAdmin,
       locale: profileLocale,
     };
 
@@ -143,10 +147,12 @@ export async function optionalAuthenticate(
     if (profileData) {
       const profile = profileData as unknown as ProfileRoleRow;
       const profileLocale: SupportedLocale = isSupportedLocale(profile.locale) ? profile.locale : 'en';
+      const isAdmin = !!(profile.is_admin || profile.role === 'admin');
       req.user = {
         id: supabaseUser.id,
         email: supabaseUser.email ?? '',
         role: (profile.role as UserRole) ?? 'user',
+        isAdmin,
         locale: profileLocale,
       };
     }
@@ -154,4 +160,16 @@ export async function optionalAuthenticate(
   } catch {
     next();
   }
+}
+
+/**
+ * Middleware: strict admin authorization guard for CRM features.
+ * Must be chained AFTER authenticate.
+ */
+export function requireAdmin(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.user || (!req.user.isAdmin && req.user.role !== 'admin')) {
+    next(new ForbiddenError('Admin access required for CRM features', 'ADMIN_UNAUTHORIZED'));
+    return;
+  }
+  next();
 }

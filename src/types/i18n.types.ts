@@ -90,7 +90,15 @@ export type TranslationKey =
   | 'friends.cannotAddSelf'
   | 'friends.alreadyFriends'
   | 'friends.requestAlreadySent'
-  | 'friends.requestNotFound';
+  | 'friends.requestNotFound'
+
+  // ── News & Admin ──────────────────────────────────────────────────────────
+  | 'news.created'
+  | 'news.updated'
+  | 'news.deleted'
+  | 'news.notFound'
+  | 'admin.unauthorized'
+  | 'admin.userUpdated';
 
 /**
  * The shape every locale file must satisfy.

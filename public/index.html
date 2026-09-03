@@ -728,6 +728,18 @@
             <button type="submit" class="btn" style="flex: 2;">Güncellemeleri Kaydet</button>
             <button type="button" class="btn btn-secondary" onclick="handleLogout()" style="flex: 1;">Çıkış Yap</button>
           </div>
+
+          <div style="margin-top: 1.5rem; padding-top: 1.2rem; border-top: 1px dashed var(--card-border); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #f43f5e;">⚡ Test Admin Yetkisi (isAdmin)</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Kendine CRM yetkisi ver veya kaldır</div>
+            </div>
+            <button type="button" class="btn" onclick="handleToggleSelfAdmin()" style="background: linear-gradient(135deg, #f43f5e, #e11d48); font-size: 0.8rem; padding: 6px 14px;">Admin Yetkisini Değiştir</button>
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <a href="/crm.html" target="_blank" class="btn" style="display: block; text-align: center; background: linear-gradient(135deg, #0ea5e9, #6366f1); text-decoration: none;">👑 CRM Admin Paneline Git (/crm.html)</a>
+          </div>
         </form>
       </div>
 
@@ -1087,6 +1099,19 @@
         document.getElementById('card-verified').classList.remove('hidden');
       } else {
         document.getElementById('card-verified').classList.add('hidden');
+      }
+    }
+
+    // Toggle Admin Self
+    async function handleToggleSelfAdmin() {
+      if (!authToken || !currentUser) return showToast('Lütfen önce giriş yapın', '💡');
+      const newAdminState = !currentUser.isAdmin;
+      const res = await apiRequest('/api/v1/profiles/me/admin-toggle', 'POST', { isAdmin: newAdminState });
+      if (res.ok && res.data.data) {
+        currentUser = res.data.data;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateSessionUI();
+        showToast(`Admin Yetkisi: ${newAdminState ? 'VERİLDİ (true)' : 'KALDIRILDI (false)'}`, '👑');
       }
     }
 

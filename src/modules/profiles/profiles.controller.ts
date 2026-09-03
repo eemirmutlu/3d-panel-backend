@@ -106,6 +106,20 @@ export const profilesController = {
   },
 
   /**
+   * POST /api/v1/profiles/me/admin-toggle
+   * Temporary test endpoint: toggles own isAdmin status.
+   */
+  async toggleAdminSelf(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { isAdmin } = req.body as { isAdmin: boolean };
+      const updated = await profilesService.toggleAdminSelf(req.user!.id, !!isAdmin);
+      sendSuccess(res, updated, t('admin.userUpdated', req.locale));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  /**
    * DELETE /api/v1/profiles/me
    * Soft-deletes the authenticated user's own account.
    */

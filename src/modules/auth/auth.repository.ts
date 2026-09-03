@@ -27,6 +27,7 @@ interface ProfileRow {
   is_verified: boolean;
   verified_at: string | null;
   is_private: boolean;
+  is_admin?: boolean;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -49,13 +50,14 @@ function mapRowToProfile(row: ProfileRow): Profile {
     isVerified: row.is_verified,
     verifiedAt: row.verified_at,
     isPrivate: row.is_private,
+    isAdmin: !!(row.is_admin || row.role === 'admin'),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }
 
 const SELECT_COLUMNS =
-  'id, email, name, username, bio, avatar_url, website_url, location, role, locale, is_verified, verified_at, is_private, deleted_at, created_at, updated_at';
+  'id, email, name, username, bio, avatar_url, website_url, location, role, locale, is_verified, verified_at, is_private, is_admin, deleted_at, created_at, updated_at';
 
 // ─── Repository ──────────────────────────────────────────────────────────────
 

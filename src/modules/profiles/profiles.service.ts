@@ -33,6 +33,7 @@ function toPublicView(profile: Profile): PublicProfileView {
     isVerified: profile.isVerified,
     verifiedAt: profile.verifiedAt,
     isPrivate: false,
+    isAdmin: !!(profile.isAdmin || profile.role === 'admin'),
     createdAt: profile.createdAt,
     updatedAt: profile.updatedAt,
   };
@@ -205,5 +206,13 @@ export class ProfilesService {
     }
 
     return result;
+  }
+
+  /**
+   * Toggle own admin status (For testing).
+   */
+  async toggleAdminSelf(userId: string, isAdmin: boolean): Promise<Profile> {
+    const role = isAdmin ? 'admin' : 'user';
+    return this.repo.update(userId, { is_admin: isAdmin, role } as unknown as Parameters<typeof this.repo.update>[1]);
   }
 }

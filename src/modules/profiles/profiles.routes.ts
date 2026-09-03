@@ -52,6 +52,12 @@ router.put(
 );
 
 /**
+ * POST /api/v1/profiles/me/admin-toggle
+ * Test endpoint: toggles own isAdmin status.
+ */
+router.post('/me/admin-toggle', authenticate, profilesController.toggleAdminSelf);
+
+/**
  * DELETE /api/v1/profiles/me
  * Soft-deletes the authenticated user's account.
  */

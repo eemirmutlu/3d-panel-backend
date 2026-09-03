@@ -27,6 +27,7 @@ export interface Database {
           is_verified: boolean;
           verified_at: string | null;
           is_private: boolean;
+          is_admin: boolean;
           deleted_at: string | null;
           created_at: string;
           updated_at: string;
@@ -45,6 +46,7 @@ export interface Database {
           is_verified?: boolean;
           verified_at?: string | null;
           is_private?: boolean;
+          is_admin?: boolean;
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -63,6 +65,7 @@ export interface Database {
           is_verified?: boolean;
           verified_at?: string | null;
           is_private?: boolean;
+          is_admin?: boolean;
           deleted_at?: string | null;
           updated_at?: string;
         };
@@ -148,6 +151,56 @@ export interface Database {
           {
             foreignKeyName: 'friendships_addressee_id_fkey';
             columns: ['addressee_id'];
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      news: {
+        Row: {
+          id: string;
+          author_id: string;
+          title: string;
+          slug: string;
+          summary: string | null;
+          content_html: string;
+          cover_image_url: string | null;
+          image_urls: string[];
+          is_published: boolean;
+          published_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id: string;
+          title: string;
+          slug: string;
+          summary?: string | null;
+          content_html: string;
+          cover_image_url?: string | null;
+          image_urls?: string[];
+          is_published?: boolean;
+          published_at?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          author_id?: string;
+          title?: string;
+          slug?: string;
+          summary?: string | null;
+          content_html?: string;
+          cover_image_url?: string | null;
+          image_urls?: string[];
+          is_published?: boolean;
+          published_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'news_author_id_fkey';
+            columns: ['author_id'];
             referencedRelation: 'profiles';
             referencedColumns: ['id'];
           },
